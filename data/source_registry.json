@@ -1,0 +1,548 @@
+{
+    "schema_version":  1,
+    "last_reviewed":  "2026-05-06",
+    "project_boundary":  "Proof of concept using only public, freely accessible sources. Public/copyleft/non-commercial sources may be used for research and demonstration, but commercial deployment must rerun the pipeline on company-owned or properly licensed data. Cybersecurity-related sources are defensive IT-support metadata only.",
+    "domain_labels":  [
+                          "hardware",
+                          "os_kernel_drivers",
+                          "application_software",
+                          "network_connectivity",
+                          "identity_access_accounts",
+                          "storage_data_backup",
+                          "security_malware",
+                          "firmware_bios_uefi"
+                      ],
+    "source_families":  [
+                            {
+                                "id":  "stack_exchange_it_support_sites",
+                                "name":  "Stack Exchange IT-support-adjacent Q\u0026A",
+                                "status":  "candidate",
+                                "priority":  1,
+                                "source_type":  "qa",
+                                "acquisition_mode":  "data_dump_or_api",
+                                "seed_urls":  [
+                                                  "https://stackoverflow.com/help/licensing",
+                                                  "https://askubuntu.com/help/licensing",
+                                                  "https://serverfault.com/",
+                                                  "https://superuser.com/",
+                                                  "https://unix.stackexchange.com/",
+                                                  "https://networkengineering.stackexchange.com/",
+                                                  "https://security.stackexchange.com/"
+                                              ],
+                                "license":  "CC BY-SA 2.5/3.0/4.0 depending on contribution date",
+                                "commercial_posture":  "commercially_constrained_share_alike",
+                                "attribution_required":  true,
+                                "share_alike_required":  true,
+                                "target_domains":  [
+                                                       "hardware",
+                                                       "os_kernel_drivers",
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "identity_access_accounts",
+                                                       "storage_data_backup",
+                                                       "security_malware",
+                                                       "firmware_bios_uefi"
+                                                   ],
+                                "notes":  "High-value troubleshooting language and solved cases. Preserve post ids, author/display metadata where available, source URL, license version/date, answer score, accepted-answer status, and tags. Security-tagged records require review before answer generation; use only for defensive triage/remediation language after filtering offensive details.",
+                                "cyber_safety_posture":  "security_records_require_review"
+                            },
+                            {
+                                "id":  "ubuntu_official_and_community_docs",
+                                "name":  "Ubuntu official docs and community help wiki",
+                                "status":  "candidate",
+                                "priority":  2,
+                                "source_type":  "documentation",
+                                "acquisition_mode":  "crawl_or_static_download",
+                                "seed_urls":  [
+                                                  "https://help.ubuntu.com/",
+                                                  "https://help.ubuntu.com/legal.html",
+                                                  "https://help.ubuntu.com/community/License"
+                                              ],
+                                "license":  "CC BY-SA 4.0 unless otherwise stated",
+                                "commercial_posture":  "commercially_constrained_share_alike",
+                                "attribution_required":  true,
+                                "share_alike_required":  true,
+                                "target_domains":  [
+                                                       "os_kernel_drivers",
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "storage_data_backup",
+                                                       "security_malware"
+                                                   ],
+                                "notes":  "Useful for Linux desktop/server troubleshooting. Treat page-level exceptions as blockers until captured.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "microsoft_learn_support_docs",
+                                "name":  "Microsoft Learn Windows and Microsoft 365 support docs",
+                                "status":  "candidate",
+                                "priority":  3,
+                                "source_type":  "vendor_documentation",
+                                "acquisition_mode":  "metadata_first_manual_allowlist",
+                                "seed_urls":  [
+                                                  "https://learn.microsoft.com/en-us/legal/termsofuse",
+                                                  "https://learn.microsoft.com/en-us/windows/",
+                                                  "https://learn.microsoft.com/en-us/microsoft-365/"
+                                              ],
+                                "license":  "Microsoft Learn terms; many documents are personal/non-commercial unless separate terms apply",
+                                "commercial_posture":  "poc_only_review_before_training",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "os_kernel_drivers",
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "identity_access_accounts",
+                                                       "storage_data_backup",
+                                                       "security_malware",
+                                                       "firmware_bios_uefi"
+                                                   ],
+                                "notes":  "Do not bulk train until page terms are reviewed. Best used for POC retrieval/evaluation snippets with source links.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "ifixit_guides",
+                                "name":  "iFixit repair and device troubleshooting guides",
+                                "status":  "candidate",
+                                "priority":  4,
+                                "source_type":  "repair_guides",
+                                "acquisition_mode":  "api_or_export_after_terms_check",
+                                "seed_urls":  [
+                                                  "https://www.ifixit.com/Info/licensing",
+                                                  "https://www.ifixit.com/Info/Terms_of_Use"
+                                              ],
+                                "license":  "CC BY-NC-SA 3.0 for iFixit content",
+                                "commercial_posture":  "poc_only_non_commercial_share_alike",
+                                "attribution_required":  true,
+                                "share_alike_required":  true,
+                                "target_domains":  [
+                                                       "hardware",
+                                                       "firmware_bios_uefi",
+                                                       "storage_data_backup"
+                                                   ],
+                                "notes":  "Strong hardware troubleshooting source but explicitly non-commercial. Keep out of commercial claims.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "mdn_web_docs",
+                                "name":  "MDN Web Docs",
+                                "status":  "candidate",
+                                "priority":  5,
+                                "source_type":  "developer_documentation",
+                                "acquisition_mode":  "static_content_or_crawl",
+                                "seed_urls":  [
+                                                  "https://developer.mozilla.org/docs/MDN/Writing_guidelines/Attrib_copyright_license"
+                                              ],
+                                "license":  "CC BY-SA 2.5 or later unless otherwise indicated",
+                                "commercial_posture":  "commercially_constrained_share_alike",
+                                "attribution_required":  true,
+                                "share_alike_required":  true,
+                                "target_domains":  [
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "security_malware"
+                                                   ],
+                                "notes":  "Useful for browser/web-app support cases, certificates, HTTP, storage, and web APIs. Lower priority than OS/vendor support data.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "linux_man_pages",
+                                "name":  "Linux man-pages and related system manuals",
+                                "status":  "candidate",
+                                "priority":  6,
+                                "source_type":  "manuals",
+                                "acquisition_mode":  "crawl_with_page_license_capture",
+                                "seed_urls":  [
+                                                  "https://man7.org/linux/man-pages/index.html"
+                                              ],
+                                "license":  "page-specific free software/manual licenses",
+                                "commercial_posture":  "license_varies_capture_per_page",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "os_kernel_drivers",
+                                                       "network_connectivity",
+                                                       "storage_data_backup",
+                                                       "security_malware"
+                                                   ],
+                                "notes":  "Capture each page license link when present. Better as reference evidence than conversational troubleshooting data.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "vendor_firmware_security_advisories",
+                                "name":  "Vendor firmware, BIOS, driver, and security advisories",
+                                "status":  "candidate",
+                                "priority":  7,
+                                "source_type":  "vendor_advisories",
+                                "acquisition_mode":  "manual_allowlist_then_crawl",
+                                "seed_urls":  [
+                                                  "https://www.dell.com/support/",
+                                                  "https://support.hp.com/",
+                                                  "https://pcsupport.lenovo.com/",
+                                                  "https://www.asus.com/support/",
+                                                  "https://www.acer.com/support"
+                                              ],
+                                "license":  "vendor terms vary",
+                                "commercial_posture":  "poc_only_until_terms_reviewed",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "hardware",
+                                                       "os_kernel_drivers",
+                                                       "security_malware",
+                                                       "firmware_bios_uefi"
+                                                   ],
+                                "notes":  "Critical for firmware escalation safety. Start with metadata and links, then sample pages after terms review. Vendor advisory data is defensive metadata/link evidence for patching, driver, BIOS, firmware, and escalation decisions.",
+                                "cyber_safety_posture":  "defensive_vendor_metadata_only"
+                            },
+                            {
+                                "id":  "public_it_helpdesk_ticket_datasets",
+                                "name":  "Public IT/helpdesk ticket datasets",
+                                "status":  "candidate",
+                                "priority":  1,
+                                "source_type":  "ticket_dataset",
+                                "acquisition_mode":  "dataset_snapshot_or_record_api",
+                                "seed_urls":  [
+                                                  "https://huggingface.co/datasets/benjaminmacklin/IT_Support",
+                                                  "https://zenodo.org/records/7384758"
+                                              ],
+                                "license":  "dataset-specific; capture license/provenance per dataset",
+                                "commercial_posture":  "license_varies_capture_per_dataset",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "hardware",
+                                                       "os_kernel_drivers",
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "identity_access_accounts",
+                                                       "storage_data_backup",
+                                                       "security_malware"
+                                                   ],
+                                "notes":  "Use for classifier/ticket-routing language only after PII/provenance inspection. Inspect for PII, secrets, credential traces, and unsafe cyber content before normalization or training.",
+                                "cyber_safety_posture":  "pii_and_safety_review_required"
+                            },
+                            {
+                                "id":  "microsoftdocs_github_repos",
+                                "name":  "MicrosoftDocs GitHub source repositories",
+                                "status":  "candidate",
+                                "priority":  2,
+                                "source_type":  "vendor_documentation_source_repo",
+                                "acquisition_mode":  "github_archive_zip",
+                                "seed_urls":  [
+                                                  "https://github.com/MicrosoftDocs/SupportArticles-docs"
+                                              ],
+                                "license":  "repo-specific; many MicrosoftDocs repos use CC BY 4.0 for docs and MIT for code",
+                                "commercial_posture":  "repo_license_review_required",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "os_kernel_drivers",
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "identity_access_accounts",
+                                                       "storage_data_backup",
+                                                       "security_malware",
+                                                       "firmware_bios_uefi"
+                                                   ],
+                                "notes":  "Prefer source repos with explicit LICENSE files over blind scraping of Learn pages.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "fedora_docs",
+                                "name":  "Fedora Docs",
+                                "status":  "candidate",
+                                "priority":  3,
+                                "source_type":  "documentation",
+                                "acquisition_mode":  "allowlisted_page_capture",
+                                "seed_urls":  [
+                                                  "https://docs.fedoraproject.org/"
+                                              ],
+                                "license":  "CC BY-SA 4.0 unless specifically noted otherwise",
+                                "commercial_posture":  "commercially_constrained_share_alike",
+                                "attribution_required":  true,
+                                "share_alike_required":  true,
+                                "target_domains":  [
+                                                       "os_kernel_drivers",
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "storage_data_backup",
+                                                       "security_malware"
+                                                   ],
+                                "notes":  "Linux admin and troubleshooting reference evidence.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "archwiki_docs",
+                                "name":  "ArchWiki documentation",
+                                "status":  "candidate",
+                                "priority":  3,
+                                "source_type":  "documentation",
+                                "acquisition_mode":  "allowlisted_page_capture",
+                                "seed_urls":  [
+                                                  "https://wiki.archlinux.org/"
+                                              ],
+                                "license":  "GFDL 1.3 or later unless otherwise noted",
+                                "commercial_posture":  "poc_only_until_gfdl_handling_is_explicit",
+                                "attribution_required":  true,
+                                "share_alike_required":  true,
+                                "target_domains":  [
+                                                       "hardware",
+                                                       "os_kernel_drivers",
+                                                       "application_software",
+                                                       "network_connectivity",
+                                                       "identity_access_accounts",
+                                                       "storage_data_backup",
+                                                       "security_malware"
+                                                   ],
+                                "notes":  "High-quality Linux troubleshooting; keep GFDL lineage separate.",
+                                "cyber_safety_posture":  "standard_public_it_support_review"
+                            },
+                            {
+                                "id":  "nvd_security_feeds",
+                                "name":  "NVD JSON 2.0 vulnerability and product feeds",
+                                "status":  "candidate",
+                                "priority":  1,
+                                "source_type":  "security_metadata",
+                                "acquisition_mode":  "official_json_feed_download",
+                                "seed_urls":  [
+                                                  "https://nvd.nist.gov/vuln/data-feeds"
+                                              ],
+                                "license":  "NVD public-service data; API terms and attribution notice apply",
+                                "commercial_posture":  "commercially_usable_with_attribution_notice_and_terms",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "security_malware",
+                                                       "firmware_bios_uefi",
+                                                       "application_software",
+                                                       "hardware"
+                                                   ],
+                                "notes":  "Use for CVE/CPE/security escalation and firmware safety metadata. Defensive metadata only: CVE/advisory IDs, affected products, severity, remediation, vendor links, known-exploited status, and escalation signals. Do not use for exploit reproduction or offensive guidance.",
+                                "cyber_safety_posture":  "defensive_metadata_only"
+                            },
+                            {
+                                "id":  "cisa_kev_catalog",
+                                "name":  "CISA Known Exploited Vulnerabilities catalog",
+                                "status":  "candidate",
+                                "priority":  1,
+                                "source_type":  "security_metadata",
+                                "acquisition_mode":  "official_json_feed_download",
+                                "seed_urls":  [
+                                                  "https://www.cisa.gov/known-exploited-vulnerabilities-catalog"
+                                              ],
+                                "license":  "CISA.gov public domain; external references have their own terms",
+                                "commercial_posture":  "commercially_usable_public_domain_with_attribution_caution",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "security_malware",
+                                                       "firmware_bios_uefi",
+                                                       "network_connectivity"
+                                                   ],
+                                "notes":  "Use for exploited-in-the-wild safety and urgency signals. Defensive metadata only: CVE/advisory IDs, affected products, severity, remediation, vendor links, known-exploited status, and escalation signals. Do not use for exploit reproduction or offensive guidance.",
+                                "cyber_safety_posture":  "defensive_metadata_only"
+                            },
+                            {
+                                "id":  "github_advisory_database",
+                                "name":  "GitHub Advisory Database",
+                                "status":  "candidate",
+                                "priority":  1,
+                                "source_type":  "security_metadata",
+                                "acquisition_mode":  "github_archive_zip",
+                                "seed_urls":  [
+                                                  "https://github.com/github/advisory-database"
+                                              ],
+                                "license":  "CC BY 4.0",
+                                "commercial_posture":  "commercially_usable_with_attribution",
+                                "attribution_required":  true,
+                                "share_alike_required":  false,
+                                "target_domains":  [
+                                                       "security_malware",
+                                                       "application_software"
+                                                   ],
+                                "notes":  "Open-source vulnerability advisories in OSV format. Defensive metadata only: CVE/advisory IDs, affected products, severity, remediation, vendor links, known-exploited status, and escalation signals. Do not use for exploit reproduction or offensive guidance.",
+                                "cyber_safety_posture":  "defensive_metadata_only"
+                            }
+                        ],
+    "acquisition_runs":  [
+                             {
+                                 "run_id":  "20260506T095955Z",
+                                 "source_family_id":  "stack_exchange_it_support_sites",
+                                 "status":  "superseded",
+                                 "raw_dir":  "data\\raw\\stack_exchange_it_support_sites\\20260506T095955Z",
+                                 "attribution_path":  "data\\attribution\\stack_exchange_it_support_sites\\20260506T095955Z_attribution.jsonl",
+                                 "question_count":  27,
+                                 "attribution_record_count":  303,
+                                 "superseded_by":  "20260506T100137Z",
+                                 "superseded_reason":  "answer attribution rows lacked source_url because Stack Exchange answer objects do not include link"
+                             },
+                             {
+                                 "run_id":  "20260506T100137Z",
+                                 "source_family_id":  "stack_exchange_it_support_sites",
+                                 "status":  "superseded",
+                                 "raw_dir":  "data\\raw\\stack_exchange_it_support_sites\\20260506T100137Z",
+                                 "attribution_path":  "data\\attribution\\stack_exchange_it_support_sites\\20260506T100137Z_attribution.jsonl",
+                                 "question_count":  27,
+                                 "attribution_record_count":  303,
+                                 "superseded_by":  "20260506T100325Z",
+                                 "superseded_reason":  "attribution rows did not preserve both api_content_license and derived_license_by_creation_date, and answer rows lacked parent question title/tags"
+                             },
+                             {
+                                 "run_id":  "20260506T100325Z",
+                                 "source_family_id":  "stack_exchange_it_support_sites",
+                                 "status":  "raw_inspected",
+                                 "raw_dir":  "data\\raw\\stack_exchange_it_support_sites\\20260506T100325Z",
+                                 "attribution_path":  "data\\attribution\\stack_exchange_it_support_sites\\20260506T100325Z_attribution.jsonl",
+                                 "inspection_summary_path":  "data\\processed\\stack_exchange_it_support_sites\\20260506T100325Z\\inspection_summary.json",
+                                 "inspection_report_path":  "data\\processed\\stack_exchange_it_support_sites\\20260506T100325Z\\inspection_report.md",
+                                 "normalized_schema_path":  "data\\processed\\stack_exchange_it_support_sites\\20260506T100325Z\\normalized_schema_v0.json",
+                                 "normalized_preview_path":  "data\\processed\\stack_exchange_it_support_sites\\20260506T100325Z\\normalized_preview_v0.jsonl",
+                                 "question_count":  27,
+                                 "attribution_record_count":  303,
+                                 "bounded_sample":  true,
+                                 "notes":  "question queries intentionally used pagesize=3; answers_superuser.json has_more=true under pagesize=100; first normalization should be question-centric with accepted and top-answer evidence"
+                             },
+                             {
+                                 "run_id":  "20260506T145259Z",
+                                 "source_family_id":  "stack_exchange_it_support_sites",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\stack_exchange_it_support_sites\\20260506T145259Z",
+                                 "attribution_path":  "data\\attribution\\stack_exchange_it_support_sites\\20260506T145259Z_attribution.jsonl",
+                                 "question_count":  1450,
+                                 "attribution_record_count":  5841
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "archwiki_docs",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\archwiki_docs\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  9,
+                                 "successful_artifact_count":  9,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "cisa_kev_catalog",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\cisa_kev_catalog\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  2,
+                                 "successful_artifact_count":  1,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "fedora_docs",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\fedora_docs\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  4,
+                                 "successful_artifact_count":  3,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "ifixit_guides",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\ifixit_guides\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  4,
+                                 "successful_artifact_count":  4,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "linux_man_pages",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\linux_man_pages\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  5,
+                                 "successful_artifact_count":  5,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "mdn_web_docs",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\mdn_web_docs\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  5,
+                                 "successful_artifact_count":  5,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "nvd_security_feeds",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\nvd_security_feeds\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  60,
+                                 "successful_artifact_count":  58,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "ubuntu_official_and_community_docs",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\ubuntu_official_and_community_docs\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  8,
+                                 "successful_artifact_count":  7,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T145342Z",
+                                 "source_family_id":  "vendor_firmware_security_advisories",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\vendor_firmware_security_advisories\\20260506T145342Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T145342Z_attribution.jsonl",
+                                 "artifact_count":  6,
+                                 "successful_artifact_count":  3,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T145342Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T154008Z",
+                                 "source_family_id":  "github_advisory_database",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\github_advisory_database\\20260506T154008Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T154008Z_attribution.jsonl",
+                                 "artifact_count":  1,
+                                 "successful_artifact_count":  1,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T154008Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T154008Z",
+                                 "source_family_id":  "mdn_web_docs",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\mdn_web_docs\\20260506T154008Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T154008Z_attribution.jsonl",
+                                 "artifact_count":  1,
+                                 "successful_artifact_count":  1,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T154008Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T154008Z",
+                                 "source_family_id":  "microsoftdocs_github_repos",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\microsoftdocs_github_repos\\20260506T154008Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T154008Z_attribution.jsonl",
+                                 "artifact_count":  6,
+                                 "successful_artifact_count":  5,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T154008Z\\acquisition_report.md"
+                             },
+                             {
+                                 "run_id":  "20260506T154614Z",
+                                 "source_family_id":  "public_it_helpdesk_ticket_datasets",
+                                 "status":  "raw_acquired",
+                                 "raw_dir":  "data\\raw\\public_it_helpdesk_ticket_datasets\\20260506T154614Z",
+                                 "attribution_path":  "data\\attribution\\broad_data_wave\\20260506T154614Z_attribution.jsonl",
+                                 "artifact_count":  31,
+                                 "successful_artifact_count":  31,
+                                 "report_path":  "data\\processed\\broad_data_wave\\20260506T154614Z\\acquisition_report.md"
+                             }
+                         ],
+    "public_data_boundary":  "Only public, freely accessible data is in scope. Do not acquire private, leaked, pirated, paywalled, credentialed, access-controlled, or bypassed material.",
+    "cyber_safety_boundary":  "Security-related data is defensive IT-support metadata only: triage, remediation, patching, affected-product mapping, firmware/security escalation, and safe incident response. Offensive instructions, exploit reproduction, malware samples, credential abuse, evasion, and weaponization are blocked."
+}

@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Local virtual environments
+.it_support/
+.venv/
+venv/
+env/
+
+# Secrets & credentials
+.env
+.env.local
+.env.production
+.env.*.local
+*.pem
+*.key
+*.crt
+*.p12
+
+# Sensitive documentation (user-specified)
+*.md
+
+# Large/generated project assets
+models/*
+!models/.gitkeep
+data/raw/*
+data/processed/*
+data/labelled/*
+data/eval/*
+data/attribution/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/labelled/.gitkeep
+!data/eval/.gitkeep
+!data/attribution/.gitkeep
+indexes/faiss/*
+!indexes/faiss/.gitkeep
+results/benchmarks/*
+results/eval/*
+results/runs/*
+!results/benchmarks/.gitkeep
+!results/eval/.gitkeep
+!results/runs/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# OS/editor/tools
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+.gemini/

@@ -1,0 +1,120 @@
+{
+  "version": 1,
+  "download_root": "models",
+  "models": [
+    {
+      "key": "bge_small_en_v15",
+      "phase": "starter",
+      "priority": 1,
+      "repo_id": "BAAI/bge-small-en-v1.5",
+      "local_dir": "models/bge-small-en-v1.5",
+      "backend": "sentence-transformers",
+      "role": "small_cpu_embedding_baseline",
+      "license": "mit",
+      "estimated_size": "small",
+      "reason": "Fast baseline embeddings for retrieval quality and FAISS smoke tests.",
+      "allow_patterns": [
+        "README.md",
+        "*.json",
+        "*.txt",
+        "model.safetensors",
+        "tokenizer*",
+        "vocab.txt",
+        "1_Pooling/*"
+      ]
+    },
+    {
+      "key": "qwen3_embedding_06b",
+      "phase": "starter",
+      "priority": 2,
+      "repo_id": "Qwen/Qwen3-Embedding-0.6B",
+      "local_dir": "models/qwen3-embedding-0.6b",
+      "backend": "sentence-transformers",
+      "role": "strong_embedding_challenger",
+      "license": "apache-2.0",
+      "estimated_size": "1.21 GB",
+      "reason": "Strong retrieval challenger with 32k context and instruction-aware embeddings.",
+      "allow_patterns": [
+        "README.md",
+        "*.json",
+        "*.txt",
+        "model.safetensors",
+        "tokenizer*",
+        "merges.txt",
+        "vocab.json",
+        "1_Pooling/*"
+      ]
+    },
+    {
+      "key": "ministral3_3b_instruct_q4km",
+      "phase": "starter",
+      "priority": 3,
+      "repo_id": "mistralai/Ministral-3-3B-Instruct-2512-GGUF",
+      "local_dir": "models/ministral-3-3b-instruct-2512-gguf",
+      "backend": "llama.cpp",
+      "role": "tiny_fast_fallback_demo_model",
+      "license": "apache-2.0",
+      "estimated_size": "2.15 GB for Q4_K_M",
+      "reason": "Fast GGUF fallback and demo model for routing and latency sanity checks.",
+      "allow_patterns": [
+        "README.md",
+        "LICENSE*",
+        "*.json",
+        "*.jinja",
+        "*Q4_K_M*.gguf",
+        "*mmproj*.gguf"
+      ]
+    },
+    {
+      "key": "gemma4_e2b_it",
+      "phase": "classifier",
+      "priority": 4,
+      "repo_id": "google/gemma-4-E2B-it",
+      "local_dir": "models/gemma-4-E2B-it",
+      "backend": "transformers",
+      "role": "primary_triage_classifier_base",
+      "license": "apache-2.0",
+      "estimated_size": "large",
+      "reason": "Primary QLoRA classifier base for IT support multi-label triage.",
+      "ignore_patterns": [
+        "*.msgpack",
+        "*.h5",
+        "*.ot"
+      ]
+    },
+    {
+      "key": "qwen35_4b",
+      "phase": "classifier",
+      "priority": 5,
+      "repo_id": "Qwen/Qwen3.5-4B",
+      "local_dir": "models/qwen3.5-4b",
+      "backend": "transformers",
+      "role": "classifier_challenger",
+      "license": "apache-2.0",
+      "estimated_size": "9.34 GB",
+      "reason": "Classifier challenger against Gemma E2B for firmware false-negative rate and OOD robustness.",
+      "ignore_patterns": [
+        "*.msgpack",
+        "*.h5",
+        "*.ot"
+      ]
+    },
+    {
+      "key": "qwen35_9b",
+      "phase": "stretch",
+      "priority": 6,
+      "repo_id": "Qwen/Qwen3.5-9B",
+      "local_dir": "models/qwen3.5-9b",
+      "backend": "transformers",
+      "role": "specialist_heavy_challenger",
+      "license": "apache-2.0",
+      "estimated_size": "19.3 GB",
+      "reason": "Heavy challenger only after the existing Gemma 26B fallback and 4B stack are benchmarked.",
+      "ignore_patterns": [
+        "*.msgpack",
+        "*.h5",
+        "*.ot"
+      ]
+    }
+  ]
+}
