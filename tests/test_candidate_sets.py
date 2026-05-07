@@ -18,7 +18,7 @@ def test_retrieval_candidates_require_retrieval_gate() -> None:
         required_uses=(DownstreamUse.RETRIEVAL,),
     )
 
-    assert len(result.records) == 515
+    assert len(result.records) == 516
     assert result.audit["answer_generation_allowed_records"] == 0
     assert result.audit["blocked_by_required_use"]["retrieval"] == 0
 

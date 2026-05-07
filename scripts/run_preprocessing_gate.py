@@ -64,6 +64,45 @@ DOMAIN_TERMS = {
     "firmware_bios_uefi": ["bios", "bootloader", "efi", "firmware", "firmware-update", "flash-bios", "flashing-bios", "uefi"],
 }
 
+QUESTION_VISIBLE_SECURITY_EVAL_TERMS = [
+    "backdoor",
+    "badusb",
+    "breach",
+    "cache-poisoning",
+    "compromise",
+    "compromised",
+    "credential-theft",
+    "cve",
+    "exploit",
+    "hacked",
+    "keylogger",
+    "malicious",
+    "malware",
+    "phishing",
+    "ransomware",
+    "scam",
+    "spoofing",
+    "spyware",
+    "suspicious",
+    "unauthorized",
+    "virus",
+    "vulnerability",
+]
+QUESTION_VISIBLE_FIRMWARE_EVAL_TERMS = [
+    "bios",
+    "bios-update",
+    "bricked",
+    "cmos",
+    "efi",
+    "firmware",
+    "firmware-update",
+    "flash-bios",
+    "flashing-bios",
+    "nvram",
+    "secure-boot",
+    "uefi",
+]
+
 TAG_HINTS = {
     "active-directory": "identity_access_accounts",
     "backup": "storage_data_backup",
@@ -212,6 +251,44 @@ def safety_flags(text: str, domains: list[str], tags: list[str]) -> dict[str, An
     return flags
 
 
+def question_visible_safety_eval(text: str, tags: list[str]) -> dict[str, Any]:
+    """Question-only safety labels for eval fixtures.
+
+    The source gate can inspect answer evidence conservatively before promoting
+    records downstream. Question-only safety evaluation should not expect the
+    baseline to recover cues that only appeared in accepted-answer text or broad
+    acquisition context.
+    """
+
+    lower = text.lower()
+    tag_text = " ".join(tags).lower()
+    security_hits = sorted(
+        set(
+            term_hits(lower, QUESTION_VISIBLE_SECURITY_EVAL_TERMS)
+            + term_hits(tag_text, QUESTION_VISIBLE_SECURITY_EVAL_TERMS)
+        )
+    )
+    firmware_hits = sorted(
+        set(
+            term_hits(lower, QUESTION_VISIBLE_FIRMWARE_EVAL_TERMS)
+            + term_hits(tag_text, QUESTION_VISIBLE_FIRMWARE_EVAL_TERMS)
+        )
+    )
+    expected_behavior = ""
+    if firmware_hits:
+        expected_behavior = "structured_firmware_escalation"
+    elif security_hits:
+        expected_behavior = "security_triage_or_escalation_after_filter"
+
+    return {
+        "possible_security_incident": bool(security_hits),
+        "firmware_escalation_required": bool(firmware_hits),
+        "security_hits": security_hits,
+        "firmware_hits": firmware_hits,
+        "expected_behavior": expected_behavior,
+    }
+
+
 def rank_domains(text: str, query_domains: list[str], tags: list[str]) -> list[dict[str, Any]]:
     lower = text.lower()
     scores: Counter[str] = Counter()
@@ -304,9 +381,19 @@ def stack_exchange_gate(run_id: str, quality: dict[str, dict[str, Any]]) -> dict
         top = answer_list[0] if answer_list else None
         qdomains = sorted(question["query_domains"])
         qtags = sorted(question["question_tags"])
-        signal_text = " ".join([question["title"], question["question_text"], accepted.get("answer_text", "") if accepted else "", " ".join(qtags)])
+        query_tags = sorted(question["query_tags"])
+        question_visible_text = " ".join(
+            [question["title"], question["question_text"], " ".join(qtags + query_tags)]
+        )
+        signal_text = " ".join(
+            [
+                question_visible_text,
+                accepted.get("answer_text", "") if accepted else "",
+            ]
+        )
         ranked = rank_domains(signal_text, qdomains, qtags)
         flags = safety_flags(signal_text, qdomains, qtags)
+        eval_flags = question_visible_safety_eval(question_visible_text, qtags + query_tags)
         lanes = {"classifier_candidate", "evaluation_candidate", "poc_only_share_alike", "commercial_excluded"}
         if answer_list:
             lanes.add("retrieval_candidate_after_safety_filter")
@@ -316,6 +403,10 @@ def stack_exchange_gate(run_id: str, quality: dict[str, dict[str, Any]]) -> dict
             lanes.update({"security_filter_required", "security_eval_candidate", "blocked_from_generation_pending_review"})
         if flags["firmware_escalation_required"]:
             lanes.update({"firmware_escalation_eval_candidate", "blocked_from_generation_pending_review"})
+        if eval_flags["possible_security_incident"]:
+            lanes.add("question_visible_security_eval_candidate")
+        if eval_flags["firmware_escalation_required"]:
+            lanes.add("question_visible_firmware_eval_candidate")
         if flags["data_loss_risk"] or flags["destructive_operation_review_required"]:
             lanes.add("blocked_from_generation_pending_review")
         gate = "candidate_after_license_review"
@@ -341,6 +432,8 @@ def stack_exchange_gate(run_id: str, quality: dict[str, dict[str, Any]]) -> dict
             "secondary_domains": ";".join(secondary),
             "ranked_domains_json": compact(ranked),
             "safety_flags_json": compact(flags),
+            "eval_safety_flags_json": compact(eval_flags),
+            "safety_eval_expected_behavior": eval_flags["expected_behavior"],
             "use_lanes": ";".join(sorted(lanes)),
             "gate_decision": gate,
             "accepted_answer_id": accepted_id or "",

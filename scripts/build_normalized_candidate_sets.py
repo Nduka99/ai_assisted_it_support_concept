@@ -198,6 +198,7 @@ def attribution_refs(attr: dict[tuple[str, str, int, int | None], list[dict[str,
 def stack_record_base(gate_row: dict[str, str], question: dict[str, Any]) -> dict[str, Any]:
     ranked = parse_json_field(gate_row.get("ranked_domains_json", ""), [])
     flags = parse_json_field(gate_row.get("safety_flags_json", ""), {})
+    eval_flags = parse_json_field(gate_row.get("eval_safety_flags_json", ""), {})
     return {
         "record_id": gate_row["record_id"],
         "source_family_id": "stack_exchange_it_support_sites",
@@ -213,6 +214,8 @@ def stack_record_base(gate_row: dict[str, str], question: dict[str, Any]) -> dic
         "secondary_domains": [domain for domain in gate_row.get("secondary_domains", "").split(";") if domain],
         "ranked_domains": ranked,
         "safety_flags": flags,
+        "eval_safety_flags": eval_flags,
+        "safety_eval_expected_behavior": gate_row.get("safety_eval_expected_behavior", ""),
         "gate_decision": gate_row.get("gate_decision"),
         "use_lanes": [lane for lane in gate_row.get("use_lanes", "").split(";") if lane],
         "license": gate_row.get("license"),
@@ -220,6 +223,23 @@ def stack_record_base(gate_row: dict[str, str], question: dict[str, Any]) -> dic
         "commercial_reuse_allowed": False,
         "attribution_required": True,
         "share_alike_required": True,
+    }
+
+
+def manual_review_record(base: dict[str, Any], *, reason: str) -> dict[str, Any]:
+    return {
+        "record_id": base["record_id"],
+        "title": base["title"],
+        "source_url": base["source_url"],
+        "site": base["site"],
+        "primary_domain": base["primary_domain"],
+        "secondary_domains": base["secondary_domains"],
+        "safety_flags": base["safety_flags"],
+        "eval_safety_flags": base.get("eval_safety_flags", {}),
+        "gate_decision": base["gate_decision"],
+        "safety_eval_expected_behavior": base.get("safety_eval_expected_behavior", ""),
+        "manual_review_reason": reason,
+        "commercial_reuse_allowed": False,
     }
 
 
@@ -301,30 +321,31 @@ def build_stack_sets(stack_run: str) -> dict[str, Any]:
             "requires_record_level_security_filter",
             "requires_firmware_escalation_policy_review",
         }:
-            fixture = dict(base)
-            fixture["unit_type"] = "question_only_safety_fixture"
-            fixture["answer_text_included"] = False
-            fixture["expected_behavior"] = (
-                "structured_firmware_escalation"
-                if gate_row["gate_decision"] == "requires_firmware_escalation_policy_review"
-                else "security_triage_or_escalation_after_filter"
-            )
-            fixture["blocked_reason"] = gate_row["gate_decision"]
-            safety_fixtures.append(fixture)
+            eval_behavior = gate_row.get("safety_eval_expected_behavior", "")
+            if eval_behavior:
+                fixture = dict(base)
+                fixture["unit_type"] = "question_only_safety_fixture"
+                fixture["answer_text_included"] = False
+                fixture["expected_behavior"] = eval_behavior
+                fixture["blocked_reason"] = gate_row["gate_decision"]
+                safety_fixtures.append(fixture)
+            else:
+                manual_review.append(
+                    manual_review_record(
+                        base,
+                        reason=(
+                            "gate_requires_review_but_question_visible_safety_eval_"
+                            "behavior_is_absent"
+                        ),
+                    )
+                )
         else:
-            review = {
-                "record_id": base["record_id"],
-                "title": base["title"],
-                "source_url": base["source_url"],
-                "site": base["site"],
-                "primary_domain": base["primary_domain"],
-                "secondary_domains": base["secondary_domains"],
-                "safety_flags": base["safety_flags"],
-                "gate_decision": base["gate_decision"],
-                "manual_review_reason": "record_level_review_required_before_promotion",
-                "commercial_reuse_allowed": False,
-            }
-            manual_review.append(review)
+            manual_review.append(
+                manual_review_record(
+                    base,
+                    reason="record_level_review_required_before_promotion",
+                )
+            )
 
     return {
         "classifier_pool": classifier_pool,

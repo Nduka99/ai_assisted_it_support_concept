@@ -154,6 +154,29 @@ def domain_metrics(predictions: list[dict[str, Any]], *, profile: str) -> dict[s
     }
 
 
+def routing_primary_confusion_rows(
+    predictions: list[dict[str, Any]], *, profile: str
+) -> list[dict[str, Any]]:
+    """Chart-ready primary-domain confusion rows."""
+
+    confusion = Counter(
+        (
+            item.get("expected_primary_domain") or "<missing>",
+            item.get("predicted_primary_domain") or "<missing>",
+        )
+        for item in predictions
+    )
+    return [
+        {
+            "profile": profile,
+            "expected_primary_domain": expected,
+            "predicted_primary_domain": predicted,
+            "records": count,
+        }
+        for (expected, predicted), count in sorted(confusion.items())
+    ]
+
+
 def safety_metrics(predictions: list[dict[str, Any]], *, profile: str) -> dict[str, Any]:
     expected_labels = [
         "structured_firmware_escalation",
@@ -210,6 +233,7 @@ def safety_metrics(predictions: list[dict[str, Any]], *, profile: str) -> dict[s
         "cases": len(predictions),
         "confusion": [
             {
+                "profile": profile,
                 "expected_behavior": expected,
                 "predicted_behavior": predicted,
                 "records": count,
@@ -224,6 +248,74 @@ def safety_metrics(predictions: list[dict[str, Any]], *, profile: str) -> dict[s
             for key, value in misses.items()
         },
     }
+
+
+def safety_false_negative_rows(
+    predictions: list[dict[str, Any]], *, profile: str
+) -> list[dict[str, Any]]:
+    """Full dev-audit table for safety misses, intentionally question-only."""
+
+    expected_labels = {
+        "structured_firmware_escalation",
+        "security_triage_or_escalation_after_filter",
+    }
+    rows = []
+    for item in predictions:
+        expected = item.get("expected_behavior")
+        predicted = item.get("predicted_behavior")
+        if expected not in expected_labels or predicted == expected:
+            continue
+        rows.append(
+            {
+                "profile": profile,
+                "case_id": item.get("case_id"),
+                "expected_behavior": expected,
+                "predicted_behavior": predicted,
+                "expected_primary_domain": item.get("expected_primary_domain"),
+                "predicted_primary_domain": item.get("predicted_primary_domain"),
+                "title": item.get("title"),
+                "question_tags": ";".join(item.get("question_tags") or []),
+                "query_tags": ";".join(item.get("query_tags") or []),
+                "predicted_domains": ";".join(
+                    row.get("label", "")
+                    for row in item.get("predicted_domains") or []
+                ),
+                "source_url": item.get("source_url"),
+            }
+        )
+    return rows
+
+
+def safety_false_negative_tag_rows(
+    false_negative_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Aggregate miss tags for bar charts and manual review targeting."""
+
+    tag_counts = Counter()
+    for row in false_negative_rows:
+        tags = [tag for tag in str(row.get("question_tags", "")).split(";") if tag]
+        if not tags:
+            tag_counts[
+                (
+                    row.get("profile"),
+                    row.get("expected_behavior"),
+                    "<no_question_tag>",
+                )
+            ] += 1
+            continue
+        for tag in tags:
+            tag_counts[(row.get("profile"), row.get("expected_behavior"), tag)] += 1
+    return [
+        {
+            "profile": profile,
+            "expected_behavior": expected_behavior,
+            "question_tag": tag,
+            "records": count,
+        }
+        for (profile, expected_behavior, tag), count in sorted(
+            tag_counts.items(), key=lambda item: (item[0][0], item[0][1], -item[1], item[0][2])
+        )
+    ]
 
 
 def evaluate_cases(
@@ -253,6 +345,9 @@ def build_outputs(*, include_holdout: bool = False) -> dict[str, Any]:
     profile_summaries = []
     domain_rows = []
     safety_rows = []
+    routing_confusion_rows = []
+    safety_confusion_rows = []
+    safety_fn_rows = []
 
     for profile, include_tags in PROFILES.items():
         routing_predictions = evaluate_cases(
@@ -277,6 +372,13 @@ def build_outputs(*, include_holdout: bool = False) -> dict[str, Any]:
         behavior_metrics = safety_metrics(safety_predictions, profile=profile)
         domain_rows.extend(routing_metrics["per_domain"])
         safety_rows.extend(behavior_metrics["per_behavior"])
+        routing_confusion_rows.extend(
+            routing_primary_confusion_rows(routing_predictions, profile=profile)
+        )
+        safety_confusion_rows.extend(behavior_metrics["confusion"])
+        safety_fn_rows.extend(
+            safety_false_negative_rows(safety_predictions, profile=profile)
+        )
         profile_summaries.append(
             {
                 "profile": profile,
@@ -298,12 +400,24 @@ def build_outputs(*, include_holdout: bool = False) -> dict[str, Any]:
 
     domain_csv = OUT / f"routing_metrics_{split_scope}.csv"
     safety_csv = OUT / f"safety_metrics_{split_scope}.csv"
+    routing_confusion_csv = OUT / f"routing_primary_confusion_{split_scope}.csv"
+    safety_confusion_csv = OUT / f"safety_confusion_{split_scope}.csv"
+    safety_fn_csv = OUT / f"safety_false_negatives_{split_scope}.csv"
+    safety_fn_tag_csv = OUT / f"safety_false_negative_tag_counts_{split_scope}.csv"
     summary_json = OUT / f"baseline_summary_{split_scope}.json"
     summary_md = OUT / f"baseline_summary_{split_scope}.md"
     write_csv(domain_csv, domain_rows)
     write_csv(safety_csv, safety_rows)
+    write_csv(routing_confusion_csv, routing_confusion_rows)
+    write_csv(safety_confusion_csv, safety_confusion_rows)
+    write_csv(safety_fn_csv, safety_fn_rows)
+    write_csv(safety_fn_tag_csv, safety_false_negative_tag_rows(safety_fn_rows))
     outputs["routing_metrics"] = domain_csv
     outputs["safety_metrics"] = safety_csv
+    outputs["routing_primary_confusion"] = routing_confusion_csv
+    outputs["safety_confusion"] = safety_confusion_csv
+    outputs["safety_false_negatives"] = safety_fn_csv
+    outputs["safety_false_negative_tag_counts"] = safety_fn_tag_csv
     outputs["summary_json"] = summary_json
     outputs["summary_md"] = summary_md
 
@@ -368,6 +482,7 @@ def build_outputs(*, include_holdout: bool = False) -> dict[str, Any]:
         "- Holdout evaluation remains untouched unless explicitly requested later.",
         "- Safety false negatives are measured against conservative safety fixtures; "
         "review samples before treating them as true model failures.",
+        "- Confusion and false-negative CSV files are chart-ready notebook inputs.",
         "",
         "## Outputs",
         "",
